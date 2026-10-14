@@ -1,10 +1,12 @@
-import { useReducer, type ReactNode } from 'react'
+import { useEffect, useReducer, useState, type ReactNode } from 'react'
 import { NotesApp } from '../apps/NotesApp'
 import { PlaceholderApp } from '../apps/PlaceholderApp'
 import { getApp } from '../apps/registry'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
+import { loadSession, saveSession } from '../kernel/session'
 import type { AppId, PanelId } from '../kernel/types'
 import { Dock } from './components/Dock'
+import { CommandPalette } from './components/CommandPalette'
 import { SidePanel } from './components/SidePanel'
 import { TopBar } from './components/TopBar'
 import { Window } from './components/Window'
@@ -24,7 +26,22 @@ function renderApp(appId: AppId): ReactNode {
 }
 
 export function Shell() {
-  const [state, dispatch] = useReducer(shellReducer, initialShellState)
+  const [state, dispatch] = useReducer(shellReducer, initialShellState, () => loadSession())
+  const [sessionSaved, setSessionSaved] = useState(true)
+  const [commandsOpen, setCommandsOpen] = useState(false)
+  useEffect(() => {
+    setSessionSaved(saveSession(state))
+  }, [state])
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !event.repeat) {
+        event.preventDefault()
+        setCommandsOpen((open) => !open)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
   const temple = selectActiveTemple(state)
   const closePanel = () => state.openPanel && dispatch({ type: 'panel/toggle', panel: state.openPanel })
 
@@ -37,8 +54,10 @@ export function Shell() {
         onActivateTemple={(templeId) => dispatch({ type: 'temple/activate', templeId })}
         onCreateTemple={() => dispatch({ type: 'temple/create', name: `Templo ${state.temples.length + 1}` })}
         onTogglePanel={(panel) => dispatch({ type: 'panel/toggle', panel })}
+        onOpenCommands={() => setCommandsOpen(true)}
       />
       <main className="desktop" aria-label={`Templo ${temple.name}`}>
+        {!sessionSaved && <p className="session-warning" role="status">Não foi possível salvar a sessão neste navegador. As alterações serão perdidas ao recarregar.</p>}
         {temple.windows.length === 0 && (
           <div className="desktop-empty">
             <span className="desktop-glyph">{temple.glyph}</span>
@@ -71,6 +90,7 @@ export function Shell() {
         onLaunch={(appId) => dispatch({ type: 'window/open', appId, title: getApp(appId).name })}
         onRestore={(windowId) => dispatch({ type: 'window/focus', windowId })}
       />
+      {commandsOpen && <CommandPalette state={state} onCommand={dispatch} onClose={() => setCommandsOpen(false)} />}
     </div>
   )
 }

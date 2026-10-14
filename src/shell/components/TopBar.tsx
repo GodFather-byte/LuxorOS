@@ -8,6 +8,7 @@ interface Props {
   onActivateTemple: (id: string) => void
   onCreateTemple: () => void
   onTogglePanel: (panel: PanelId) => void
+  onOpenCommands: () => void
 }
 
 const panelButtons: { id: PanelId; label: string; icon: string }[] = [
@@ -16,7 +17,7 @@ const panelButtons: { id: PanelId; label: string; icon: string }[] = [
   { id: 'ai', label: 'Copiloto', icon: '𓂀' },
 ]
 
-export function TopBar({ temples, activeTempleId, openPanel, onActivateTemple, onCreateTemple, onTogglePanel }: Props) {
+export function TopBar({ temples, activeTempleId, openPanel, onActivateTemple, onCreateTemple, onTogglePanel, onOpenCommands }: Props) {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30_000)
@@ -45,6 +46,9 @@ export function TopBar({ temples, activeTempleId, openPanel, onActivateTemple, o
         </button>
       </nav>
       <div className="topbar-actions">
+        <button className="icon-btn" onClick={onOpenCommands} aria-label="Abrir comandos" title="Comandos (Ctrl/Cmd+K)" aria-keyshortcuts="Control+k Meta+k">
+          ⌕
+        </button>
         {panelButtons.map((p) => (
           <button
             key={p.id}
