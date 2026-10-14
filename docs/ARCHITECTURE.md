@@ -54,14 +54,18 @@ O LuxorOS é dividido em duas camadas que evoluem em paralelo:
 
 ## 3. Estrutura de arquivos
 
-### Atual (Fase 0)
+### Atual (Fase 0 + início da Fase 1)
 ```
 src/
 ├── main.tsx                 # bootstrap
 ├── kernel/                  # núcleo de estado do sistema (sem UI, 100% testável)
 │   ├── types.ts             # Temple, AppWindow, PanelId, ShellAction
 │   ├── shellReducer.ts      # Templos, janelas, painéis
-│   └── shellReducer.test.ts
+│   ├── shellReducer.test.ts
+│   ├── session.ts            # snapshot versionado, validação e persistência local
+│   ├── session.test.ts
+│   ├── commands.ts           # catálogo e busca de ações do shell
+│   └── commands.test.ts
 ├── ai/
 │   └── copilot.ts           # contrato CopilotProvider + stub offline
 ├── apps/                    # micro-apps nativos
@@ -70,7 +74,7 @@ src/
 │   └── PlaceholderApp.tsx
 ├── shell/                   # ambiente de desktop
 │   ├── Shell.tsx
-│   ├── components/          # TopBar, Dock, Window, SidePanel
+│   ├── components/          # TopBar, Dock, Window, SidePanel, CommandPalette
 │   └── panels/              # AiPanel, ToolsPanel, FilesPanel
 └── styles/
     ├── theme.css            # design tokens Obsidiana & Dourado Solar
