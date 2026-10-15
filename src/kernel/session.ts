@@ -35,6 +35,13 @@ export function parseSession(raw: string): ShellState {
           typeof win.title !== 'string' || typeof win.minimized !== 'boolean' ||
           typeof win.zIndex !== 'number' || !Number.isSafeInteger(win.zIndex) ||
           win.zIndex < 1) return initialShellState
+        if (win.geometry !== undefined && (
+          !isRecord(win.geometry) ||
+          !Number.isFinite(win.geometry.x) || (win.geometry.x as number) < 0 ||
+          !Number.isFinite(win.geometry.y) || (win.geometry.y as number) < 0 ||
+          !Number.isFinite(win.geometry.width) || (win.geometry.width as number) <= 0 ||
+          !Number.isFinite(win.geometry.height) || (win.geometry.height as number) <= 0
+        )) return initialShellState
         maxZ = Math.max(maxZ, win.zIndex)
       }
     }

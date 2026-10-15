@@ -4,7 +4,7 @@ import { PlaceholderApp } from '../apps/PlaceholderApp'
 import { getApp } from '../apps/registry'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
 import { loadSession, saveSession } from '../kernel/session'
-import type { AppId, PanelId } from '../kernel/types'
+import type { AppId, PanelId, WindowGeometry } from '../kernel/types'
 import { Dock } from './components/Dock'
 import { CommandPalette } from './components/CommandPalette'
 import { SidePanel } from './components/SidePanel'
@@ -71,6 +71,7 @@ export function Shell() {
             win={w}
             index={i}
             onFocus={() => dispatch({ type: 'window/focus', windowId: w.id })}
+            onGeometryChange={(geometry: WindowGeometry) => dispatch({ type: 'window/setGeometry', windowId: w.id, geometry })}
             onMinimize={() => dispatch({ type: 'window/toggleMinimize', windowId: w.id })}
             onClose={() => dispatch({ type: 'window/close', windowId: w.id })}
           >
