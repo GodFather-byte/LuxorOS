@@ -18,11 +18,20 @@ npm ci
 npm run dev        # http://localhost:5173
 npm test           # unidade (Vitest), arquivos src/**/*.test.ts
 npm run lint       # oxlint
-npm run build      # tsc -b + vite build
+npm run build      # tsc -b + vite build (também verifica os tipos de e2e/)
+npm run test:e2e   # Playwright em e2e/*.e2e.ts, contra o build de produção (vite preview, porta 4173)
 ```
 
-O CI (`.github/workflows/pages.yml`) roda lint, testes e build em todo PR e publica no GitHub Pages ao entrar na `main`.
-Rode os três comandos localmente antes de cada push.
+Para o E2E, instale o Chromium uma vez com `npx playwright install chromium`. Em ambientes com um Chromium já instalado e sem download
+de browsers (por exemplo, sessões em nuvem com `/opt/pw-browsers`), aponte para ele:
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium npm run test:e2e`.
+
+O CI (`.github/workflows/pages.yml`) roda lint, testes, build e E2E em todo PR e publica no GitHub Pages ao entrar na `main`.
+Rode tudo localmente antes de cada push.
+
+Ao escrever testes E2E: use seletores por papel/rótulo (`getByRole`, `aria-label`), meça janelas com `offsetLeft`/`offsetWidth`
+(não `boundingBox`, que inclui a animação de abertura), e confira que o teste falha se você quebrar de propósito o comportamento que ele cobre.
+Não use `retries` para esconder instabilidade.
 
 ## 3. Arquitetura em resumo
 
@@ -46,25 +55,24 @@ Detalhes completos em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## 5. Estado atual (main)
 
-Fase 0 concluída. Fase 1 (Shell completo):
+Fases 0 e 1 concluídas. Fase 1 (Shell completo):
 
 - [x] Templos de Trabalho, janelas com foco/minimizar/fechar, Dock, painéis laterais.
 - [x] Paleta de comandos (Ctrl/Cmd+K) com busca sem acentos.
 - [x] Sessão persistente e validada (Templos, janelas, geometria).
 - [x] Arrastar e redimensionar janelas (ponteiro e teclado na alça), clamp na área do desktop e no viewport.
 - [x] Atalhos: Ctrl/Cmd+Shift+←/→ (Templo), Ctrl/Cmd+Shift+↑/↓ (foco de janela).
-- [ ] Testes E2E com Playwright no repositório e no CI.
+- [x] Testes E2E com Playwright no repositório e no CI (`e2e/shell.e2e.ts`).
 
 Micro-apps: Papiro (notas) funciona. Escriba, Tábuas e Portal ainda são placeholders. Copiloto é um stub offline.
 
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **E2E com Playwright** (fecha a Fase 1). Cobrir: abrir app pelo Dock, arrastar/redimensionar, atalhos, paleta, persistência após recarregar. Rodar no CI.
-2. **Tábuas** (planilha): grade editável, referências `A1`, fórmulas com `+ - * /`, `SUM`/`AVERAGE`/`MIN`/`MAX` em intervalos `A1:B3`, detecção de referência circular, persistência local. Motor de fórmulas como módulo puro com testes.
-3. **Escriba** (editor): Markdown com pré-visualização. Escape todo HTML; não injete HTML do usuário sem sanitização.
-4. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
-5. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
-6. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+1. **Tábuas** (planilha): grade editável, referências `A1`, fórmulas com `+ - * /`, `SUM`/`AVERAGE`/`MIN`/`MAX` em intervalos `A1:B3`, detecção de referência circular, persistência local. Motor de fórmulas como módulo puro com testes. Inclua um teste E2E.
+2. **Escriba** (editor): Markdown com pré-visualização. Escape todo HTML; não injete HTML do usuário sem sanitização.
+3. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
+4. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
+5. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
 
 As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHITECTURE.md`.
 

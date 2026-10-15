@@ -34,7 +34,7 @@ O LuxorOS é dividido em duas camadas que evoluem em paralelo:
 | Shell / UI | React 19 + TypeScript + Vite | Ecossistema maduro, HMR rápido, tipagem forte. |
 | Estilo | CSS com *design tokens* (custom properties) | Tema Obsidiana/Dourado centralizado, sem custo em runtime. |
 | Estado | `useReducer` puro no kernel (hoje) → Zustand quando houver múltiplos stores | Lógica testável sem UI. |
-| Testes | Vitest (unidade) · Playwright (E2E, próxima fase) | Integração nativa com Vite. |
+| Testes | Vitest (unidade, `src/**/*.test.ts`) · Playwright (E2E, `e2e/*.e2e.ts`, roda no CI) | Integração nativa com Vite. |
 | Motor / Host | **Electron** (MVP) → **Chromium/CEF próprio** (longo prazo) | Electron entrega `WebContentsView`, processos isolados e CDP de imediato; fork de Chromium só quando o produto estiver validado. |
 | Isolamento / RAM | Um renderer por aba/app, `sandbox: true`, `contextIsolation`, descarte de abas inativas e `process.getProcessMemoryInfo` para orçamento por Templo | Evita travamentos e vazamentos entre apps. |
 | Micro-apps | Componentes carregados sob demanda, PWA + Service Worker (offline), OPFS/IndexedDB local | "Instantâneos, sem instalação". |
@@ -115,7 +115,7 @@ docs/
 | Fase | Entregas |
 |---|---|
 | **0 — Shell (concluída)** | Vite/React/TS, tema, Templos, janelas, dock, painéis, Papiro com persistência local, testes do kernel. |
-| 1 — Shell completo | Arrastar/redimensionar janelas (concluído), atalhos de teclado, paleta de comandos (⌘K), persistência dos Templos, testes E2E com Playwright. |
+| **1 — Shell completo (concluída)** | Arrastar/redimensionar janelas, atalhos de teclado, paleta de comandos (⌘K), persistência dos Templos, testes E2E com Playwright. |
 | 2 — Host Electron | App `host` com `WebContentsView` por aba, app Portal real, monitor de RAM por Templo, descarte de abas inativas. |
 | 3 — Cérebro de IA | AI Gateway, Copiloto com contexto das abas do Templo, respostas em streaming. |
 | 4 — Memória & Templos inteligentes | Histórico com embeddings, busca semântica, agrupamento automático de abas em Templos. |

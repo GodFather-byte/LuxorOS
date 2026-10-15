@@ -9,6 +9,7 @@ Tema **Obsidiana & Dourado Solar**.
 npm install
 npm run dev      # servidor de desenvolvimento (http://localhost:5173)
 npm test         # testes unitários (Vitest)
+npm run test:e2e # testes E2E (Playwright) no build de produção; antes, uma vez: npx playwright install chromium
 npm run lint     # lint (oxlint)
 npm run build    # type-check + build de produção
 ```
