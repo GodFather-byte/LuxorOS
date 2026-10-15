@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -28,14 +27,9 @@ interface Gesture {
 }
 
 export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, children }: Props) {
-  const [geometry, setGeometry] = useState<Geometry>(() => ({
-    x: win.x, y: win.y, width: win.width, height: win.height,
-  }))
+  const [previewGeometry, setPreviewGeometry] = useState<Geometry | null>(null)
+  const geometry = previewGeometry ?? { x: win.x, y: win.y, width: win.width, height: win.height }
   const gesture = useRef<Gesture | null>(null)
-
-  useEffect(() => {
-    setGeometry({ x: win.x, y: win.y, width: win.width, height: win.height })
-  }, [win.x, win.y, win.width, win.height])
 
   if (win.minimized) return null
 
@@ -64,13 +58,13 @@ export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, ch
     const deltaX = event.clientX - active.startX
     const deltaY = event.clientY - active.startY
     if (active.mode === 'move') {
-      setGeometry({
+      setPreviewGeometry({
         ...active.geometry,
         x: Math.max(0, Math.min(active.geometry.x + deltaX, desktop.clientWidth - active.geometry.width)),
         y: Math.max(0, Math.min(active.geometry.y + deltaY, desktop.clientHeight - active.geometry.height)),
       })
     } else {
-      setGeometry({
+      setPreviewGeometry({
         ...active.geometry,
         width: Math.max(Math.min(200, maxWidth), Math.min(active.geometry.width + deltaX, maxWidth)),
         height: Math.max(Math.min(140, maxHeight), Math.min(active.geometry.height + deltaY, maxHeight)),
@@ -82,6 +76,7 @@ export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, ch
     if (!gesture.current || event.pointerId !== gesture.current.pointerId) return
     gesture.current = null
     onGeometryChange(geometry)
+    setPreviewGeometry(null)
   }
 
   const resizeByKeyboard = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
@@ -95,7 +90,6 @@ export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, ch
     else if (event.key === 'ArrowUp') next = { ...geometry, height: Math.max(140, geometry.height - amount) }
     else return
     event.preventDefault()
-    setGeometry(next)
     onGeometryChange(next)
   }
 
