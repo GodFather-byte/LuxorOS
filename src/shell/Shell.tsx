@@ -4,6 +4,7 @@ import { PlaceholderApp } from '../apps/PlaceholderApp'
 import { getApp } from '../apps/registry'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
 import { loadSession, saveSession } from '../kernel/session'
+import { resolveShortcut } from '../kernel/shortcuts'
 import type { AppId, PanelId, WindowGeometry } from '../kernel/types'
 import { Dock } from './components/Dock'
 import { CommandPalette } from './components/CommandPalette'
@@ -25,6 +26,10 @@ function renderApp(appId: AppId): ReactNode {
   return <PlaceholderApp app={getApp(appId)} />
 }
 
+function isEditable(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && (target.isContentEditable || target.matches('input, textarea, select'))
+}
+
 export function Shell() {
   const [state, dispatch] = useReducer(shellReducer, initialShellState, () => loadSession())
   const [sessionSaved, setSessionSaved] = useState(true)
@@ -37,11 +42,19 @@ export function Shell() {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !event.repeat) {
         event.preventDefault()
         setCommandsOpen((open) => !open)
+        return
+      }
+      // Arrow chords keep their text-editing meaning (word selection) inside fields.
+      if (isEditable(event.target)) return
+      const action = resolveShortcut(event, state)
+      if (action) {
+        event.preventDefault()
+        dispatch(action)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [state])
   const temple = selectActiveTemple(state)
   const closePanel = () => state.openPanel && dispatch({ type: 'panel/toggle', panel: state.openPanel })
 

@@ -22,6 +22,16 @@ npm run build    # type-check + build de produção
 - **Paleta de comandos**: abra pelo botão ⌕ na barra superior ou com **Ctrl+K / Cmd+K**. Busque apps, Templos, janelas e painéis; use ↑/↓ e Enter para executar, ou Esc para fechar. A busca aceita termos sem acentos.
 - **Sessão persistente**: Templos, Templo ativo e janelas (inclusive minimizadas) são restaurados ao recarregar. Dados inválidos retornam à sessão inicial; armazenamento indisponível não impede o uso do desktop.
 
+### Atalhos de teclado
+
+| Atalho | Ação |
+|---|---|
+| **Ctrl+K / Cmd+K** | Abrir a paleta de comandos |
+| **Ctrl+Shift+← / →** (ou Cmd no macOS) | Templo anterior / seguinte, com volta circular |
+| **Ctrl+Shift+↑ / ↓** (ou Cmd no macOS) | Foco na janela anterior / seguinte do Templo ativo; restaura janelas minimizadas |
+
+Os atalhos de setas são ignorados enquanto o foco está num campo de texto, para não interferir na seleção de palavras do Papiro. Combinações com Alt não são tratadas pelo shell.
+
 ## Testar no GitHub Pages
 
 1. Em **Settings → Pages → Build and deployment → Source**, selecione **GitHub Actions** (requer permissão de administração).
@@ -39,6 +49,7 @@ Mantenha apenas o workflow **Validate and deploy LuxorOS** publicando no Pages. 
 - Use a paleta para trocar de Templo e **Focar Papiro**, restaurando a janela minimizada.
 - Recarregue a página: Templos, janelas e nota devem permanecer no mesmo navegador.
 - Busque `tabuas` na paleta; confirme a correspondência com **Tábuas** e feche com Esc.
+- Com dois Templos, use Ctrl+Shift+→ e Ctrl+Shift+← para alternar entre eles; com duas janelas abertas, use Ctrl+Shift+↓ para trocar o foco entre elas.
 
 ### Limitações da demonstração
 

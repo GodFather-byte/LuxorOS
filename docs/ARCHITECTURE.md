@@ -64,6 +64,8 @@ src/
 │   ├── shellReducer.test.ts
 │   ├── geometry.ts          # arraste e redimensionamento das janelas, limitados à área do desktop
 │   ├── geometry.test.ts
+│   ├── shortcuts.ts         # atalhos Ctrl/Cmd+Shift+setas: traduz a tecla em ação do reducer
+│   ├── shortcuts.test.ts
 │   ├── session.ts            # snapshot versionado, validação e persistência local
 │   ├── session.test.ts
 │   ├── commands.ts           # catálogo e busca de ações do shell
