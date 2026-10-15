@@ -43,7 +43,7 @@ Detalhes completos em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
   - `shellReducer.ts`: Templos, janelas, painéis. Toda mudança de estado é uma `ShellAction` (`types.ts`).
   - `session.ts`: persistência em `localStorage` (`luxoros:session:v1`) com validação estrita. **Qualquer campo novo no estado precisa de validação aqui, de teste, e de compatibilidade com sessões salvas antes dele** (sessões antigas sem o campo devem continuar carregando).
   - `commands.ts`: catálogo da paleta (Ctrl/Cmd+K). `shortcuts.ts`: atalhos Ctrl/Cmd+Shift+setas. `geometry.ts`: arraste e redimensionamento.
-- `src/shell/`: componentes React finos que despacham ações. `src/apps/`: micro-apps (manifesto em `registry.ts`). `src/ai/`: contrato do Copiloto (hoje um stub offline).
+- `src/shell/`: componentes React finos que despacham ações. `src/apps/`: micro-apps (manifesto em `registry.ts`; cada app com lógica pura + componente). `src/ai/`: contrato do Copiloto e interpretador de comandos.
 - `src/styles/theme.css`: tokens de design (Obsidiana & Dourado Solar). Use as variáveis, não cores soltas.
 
 ## 4. Convenções
@@ -54,6 +54,7 @@ Detalhes completos em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - A alça de redimensionar é um `<button>`: ao filtrar cliques, exclua só `.window-controls`, nunca `button` em geral.
 - Atalhos globais: Ctrl+T/W/N/Tab são reservados pelo navegador e não chegam à página. Ignore atalhos de setas quando o foco estiver em `input`, `textarea` ou `contenteditable`.
 - Dados do usuário ficam no `localStorage` do navegador, sem criptografia. Não grave nada sensível.
+- Em dicionários indexados por texto do usuário, use `Object.hasOwn` (ou `Map`): `obj["constructor"]` devolve o protótipo e já derrubou o Copiloto num teste.
 
 ## 5. Estado atual
 
@@ -72,12 +73,13 @@ Micro-apps:
 - [x] Tábuas (planilha), `src/apps/sheets/`: motor de fórmulas puro em `engine.ts` (testes em `engine.test.ts`), UI em `SheetsApp.tsx`, E2E em `e2e/sheets.e2e.ts`. Dados em `luxoros:sheets:v1`.
 - [x] Escriba (Markdown), `src/apps/writer/`: `markdown.ts` gera uma árvore de blocos/inlines que o React renderiza; nenhum HTML do documento chega ao DOM. `safeHref` aceita só `http(s):`/`mailto:`. Dados em `luxoros:writer:v1`. E2E em `e2e/writer.e2e.ts`, incluindo um teste de segurança.
 - [x] Portal (navegação), `src/apps/browser/`: `address.ts` decide entre página, pesquisa (nova aba) ou recusa (só `http`/`https`); `PortalApp.tsx` usa `iframe` com `sandbox` **sem** `allow-same-origin` e `referrerPolicy="no-referrer"`. Última página em `luxoros:portal:v1`. E2E em `e2e/portal.e2e.ts` (intercepta `https://portal.test` com `page.route`, sem rede).
-- [ ] Copiloto: stub offline (`src/ai/copilot.ts`).
+- [x] Copiloto local, `src/ai/`: `intents.ts` traduz comandos em português (abrir app/painel, criar/trocar Templo, fechar/minimizar janelas, ajuda) em `ShellAction`s; `copilot.ts` define `CopilotProvider.reply(prompt, state) → { text, actions? }`, o formato que um provedor de LLM com *tool calling* deve devolver. O `AiPanel` despacha as ações. E2E em `e2e/copilot.e2e.ts`.
+- [ ] Copiloto com IA real: perguntas livres ainda caem numa resposta offline.
 
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
-2. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+1. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa; clicar abre o app.
+2. **Copiloto com IA real** (Fase 3): um `CopilotProvider` que chame um AI Gateway e devolva `{ text, actions }`. As ações já são validadas pelo reducer; peça confirmação antes de ações destrutivas (fechar janelas). Nunca coloque chaves de API no front-end.
 3. **Layout em telas estreitas**: corrigir o problema de largura do `.desktop` descrito em "Problemas conhecidos" e cobrir com um E2E em viewport de celular.
 4. **Janelas do mesmo app em sincronia**: hoje duas janelas de Papiro/Tábuas/Escriba não se atualizam entre si. Opção: evento `storage` + `BroadcastChannel`, ou um documento por janela.
 5. **Portal**: detectar páginas que recusam iframe é impossível de forma confiável entre origens; manter o link "Abrir em nova aba". Possível evolução no host Electron (Fase 2) com `WebContentsView`.

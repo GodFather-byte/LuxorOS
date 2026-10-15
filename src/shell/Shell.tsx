@@ -99,7 +99,7 @@ export function Shell() {
         ))}
         {(Object.keys(panelTitles) as PanelId[]).map((id) => (
           <SidePanel key={id} open={state.openPanel === id} title={panelTitles[id]} onClose={closePanel}>
-            {id === 'ai' && <AiPanel temple={temple} />}
+            {id === 'ai' && <AiPanel state={state} onAction={dispatch} />}
             {id === 'tools' && <ToolsPanel />}
             {id === 'files' && <FilesPanel />}
           </SidePanel>

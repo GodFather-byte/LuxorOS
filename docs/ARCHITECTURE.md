@@ -71,7 +71,8 @@ src/
 │   ├── commands.ts           # catálogo e busca de ações do shell
 │   └── commands.test.ts
 ├── ai/
-│   └── copilot.ts           # contrato CopilotProvider + stub offline
+│   ├── copilot.ts           # contrato CopilotProvider (texto + ShellActions) e provedor local
+│   └── intents.ts           # comandos em português → ShellActions (puro e testado)
 ├── apps/                    # micro-apps nativos
 │   ├── registry.ts          # manifesto dos apps (Papiro, Escriba, Tábuas, Portal)
 │   ├── NotesApp.tsx
