@@ -16,7 +16,7 @@ npm run build    # type-check + build de produção
 ## O que já existe (Shell + início da Fase 1)
 
 - **Barra superior** com os *Templos de Trabalho* (espaços por tarefa/projeto que substituem as abas tradicionais).
-- **Área de trabalho** com janelas (foco, minimizar, fechar), isoladas por Templo.
+- **Área de trabalho** com janelas móveis e redimensionáveis por Templo (foco, minimizar e fechar), com geometria salva na sessão.
 - **Dock** com micro-apps (Papiro/Notas funcional com persistência local; Escriba, Tábuas e Portal como placeholders) e indicadores das janelas abertas/minimizadas.
 - **Painéis laterais deslizantes**: Copiloto (IA — stub offline), Ferramentas e Arquivos.
 - **Paleta de comandos**: abra pelo botão ⌕ na barra superior ou com **Ctrl+K / Cmd+K**. Busque apps, Templos, janelas e painéis; use ↑/↓ e Enter para executar, ou Esc para fechar. A busca aceita termos sem acentos.

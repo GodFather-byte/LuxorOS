@@ -52,6 +52,17 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
         ...t,
         windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, minimized: !w.minimized } : w)),
       }))
+    case 'window/setGeometry':
+      if (
+        !Number.isFinite(action.geometry.x) || action.geometry.x < 0 ||
+        !Number.isFinite(action.geometry.y) || action.geometry.y < 0 ||
+        !Number.isFinite(action.geometry.width) || action.geometry.width <= 0 ||
+        !Number.isFinite(action.geometry.height) || action.geometry.height <= 0
+      ) return state
+      return updateActiveTemple(state, (t) => ({
+        ...t,
+        windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, geometry: action.geometry } : w)),
+      }))
     case 'panel/toggle':
       return { ...state, openPanel: state.openPanel === action.panel ? null : action.panel }
     default:

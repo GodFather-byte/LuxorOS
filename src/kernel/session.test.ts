@@ -19,6 +19,18 @@ describe('session', () => {
     expect(stored.has(SESSION_KEY)).toBe(true)
   })
 
+  it('restores window geometry and accepts older windows without it', () => {
+    let state = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const window = selectActiveTemple(state).windows[0]
+    state = shellReducer(state, {
+      type: 'window/setGeometry',
+      windowId: window.id,
+      geometry: { x: 20, y: 30, width: 400, height: 300 },
+    })
+    expect(parseSession(serialize(state))).toEqual(state)
+    expect(parseSession(serialize(initialShellState))).toEqual(initialShellState)
+  })
+
   it('falls back on missing, corrupt, or unsupported snapshots', () => {
     for (const raw of ['null', '{}', '{', '{"version":2}', serialize({}), serialize({ ...initialShellState, temples: [] })]) {
       expect(parseSession(raw)).toBe(initialShellState)
