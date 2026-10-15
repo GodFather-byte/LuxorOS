@@ -32,6 +32,7 @@ Rode tudo localmente antes de cada push.
 Ao escrever testes E2E: use seletores por papel/rótulo (`getByRole`, `aria-label`), meça janelas com `offsetLeft`/`offsetWidth`
 (não `boundingBox`, que inclui a animação de abertura), e confira que o teste falha se você quebrar de propósito o comportamento que ele cobre.
 Não use `retries` para esconder instabilidade.
+Exemplo real: um teste de XSS do Escriba passava mesmo com `javascript:` liberado, porque `_` no payload virava itálico e escondia o link. Só a mutação revelou isso.
 
 ## 3. Arquitetura em resumo
 
@@ -68,14 +69,14 @@ Micro-apps:
 
 - [x] Papiro (notas), `src/apps/NotesApp.tsx`.
 - [x] Tábuas (planilha), `src/apps/sheets/`: motor de fórmulas puro em `engine.ts` (testes em `engine.test.ts`), UI em `SheetsApp.tsx`, E2E em `e2e/sheets.e2e.ts`. Dados em `luxoros:sheets:v1`.
-- [ ] Escriba, Portal: placeholders. Copiloto: stub offline.
+- [x] Escriba (Markdown), `src/apps/writer/`: `markdown.ts` gera uma árvore de blocos/inlines que o React renderiza; nenhum HTML do documento chega ao DOM. `safeHref` aceita só `http(s):`/`mailto:`. Dados em `luxoros:writer:v1`. E2E em `e2e/writer.e2e.ts`, incluindo um teste de segurança.
+- [ ] Portal: placeholder. Copiloto: stub offline.
 
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **Escriba** (editor): Markdown com pré-visualização. Escape todo HTML; não injete HTML do usuário sem sanitização.
-2. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
-3. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
-4. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+1. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
+2. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
+3. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
 
 As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHITECTURE.md`.
 

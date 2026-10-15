@@ -379,6 +379,113 @@
   font-size: 3rem;
 }
 
+/* Escriba (Markdown editor) */
+.writer-app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.writer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.writer-toolbar button {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.writer-toolbar button[aria-pressed='true'] {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  color: var(--obsidian-950);
+}
+.writer-count,
+.writer-warning {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.writer-count {
+  margin-left: auto;
+}
+.writer-warning {
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--accent);
+}
+.writer-panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+.writer-panes textarea {
+  padding: 16px;
+  border: 0;
+  resize: none;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.writer-panes textarea:focus-visible {
+  outline: none;
+}
+.writer-preview {
+  overflow: auto;
+  padding: 4px 18px 16px;
+  border-left: 1px solid var(--border);
+  line-height: 1.6;
+}
+.writer-app.preview .writer-preview {
+  border-left: 0;
+}
+.writer-preview :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0.8em 0 0.4em;
+  font-family: var(--font-display);
+  color: var(--accent);
+}
+.writer-preview code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--surface-strong);
+  font-size: 0.85em;
+}
+.writer-preview pre {
+  padding: 10px 12px;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  background: var(--obsidian-950);
+}
+.writer-preview pre code {
+  padding: 0;
+  background: none;
+}
+.writer-preview blockquote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
+}
+.writer-preview a {
+  color: var(--accent-strong);
+}
+.writer-preview hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+.writer-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Tábuas (spreadsheet) */
 .sheets-app {
   height: 100%;
