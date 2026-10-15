@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from 'react'
 import type { AppWindow } from '../../kernel/types'
 
 interface Props {
@@ -36,6 +43,7 @@ export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, ch
     if (event.button !== 0) return
     event.preventDefault()
     event.stopPropagation()
+    onFocus()
     event.currentTarget.setPointerCapture(event.pointerId)
     gesture.current = {
       pointerId: event.pointerId,
@@ -76,7 +84,7 @@ export function Window({ win, onFocus, onMinimize, onClose, onGeometryChange, ch
     onGeometryChange(geometry)
   }
 
-  const resizeByKeyboard = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+  const resizeByKeyboard = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     const amount = event.shiftKey ? 48 : 16
     const desktop = event.currentTarget.closest('.desktop')
     if (!desktop) return
