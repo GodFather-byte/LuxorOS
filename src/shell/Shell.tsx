@@ -1,7 +1,10 @@
 import { useEffect, useReducer, useState, type ReactNode } from 'react'
 import { NotesApp } from '../apps/NotesApp'
 import { PlaceholderApp } from '../apps/PlaceholderApp'
+import { PortalApp } from '../apps/browser/PortalApp'
 import { getApp } from '../apps/registry'
+import { SheetsApp } from '../apps/sheets/SheetsApp'
+import { WriterApp } from '../apps/writer/WriterApp'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
 import { loadSession, saveSession } from '../kernel/session'
 import { resolveShortcut } from '../kernel/shortcuts'
@@ -23,6 +26,9 @@ const panelTitles: Record<PanelId, string> = {
 
 function renderApp(appId: AppId): ReactNode {
   if (appId === 'notes') return <NotesApp />
+  if (appId === 'sheets') return <SheetsApp />
+  if (appId === 'writer') return <WriterApp />
+  if (appId === 'browser') return <PortalApp />
   return <PlaceholderApp app={getApp(appId)} />
 }
 
@@ -93,9 +99,9 @@ export function Shell() {
         ))}
         {(Object.keys(panelTitles) as PanelId[]).map((id) => (
           <SidePanel key={id} open={state.openPanel === id} title={panelTitles[id]} onClose={closePanel}>
-            {id === 'ai' && <AiPanel temple={temple} />}
+            {id === 'ai' && <AiPanel state={state} onAction={dispatch} />}
             {id === 'tools' && <ToolsPanel />}
-            {id === 'files' && <FilesPanel />}
+            {id === 'files' && <FilesPanel state={state} onAction={dispatch} />}
           </SidePanel>
         ))}
       </main>

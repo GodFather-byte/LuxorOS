@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { STORAGE_KEYS } from './storageKeys'
 
-const STORAGE_KEY = 'luxoros:notes'
+const STORAGE_KEY = STORAGE_KEYS.notes
 
 export function NotesApp() {
   const [text, setText] = useState(() => localStorage.getItem(STORAGE_KEY) ?? '')

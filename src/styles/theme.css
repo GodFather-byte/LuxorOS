@@ -11,6 +11,7 @@
   --gold-500: #e8b44a;
   --gold-700: #a87a22;
   --lapis-500: #2f5fa8;
+  --carnelian-400: #e8735f;
 
   --bg: var(--obsidian-900);
   --surface: color-mix(in srgb, var(--obsidian-800) 82%, transparent);

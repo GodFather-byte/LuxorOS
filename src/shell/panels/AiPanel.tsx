@@ -1,10 +1,15 @@
 import { useState, type FormEvent } from 'react'
-import { localStubProvider, type CopilotMessage } from '../../ai/copilot'
-import type { Temple } from '../../kernel/types'
+import { localProvider, type CopilotMessage } from '../../ai/copilot'
+import type { ShellAction, ShellState } from '../../kernel/types'
 
-export function AiPanel({ temple }: { temple: Temple }) {
+interface Props {
+  state: ShellState
+  onAction: (action: ShellAction) => void
+}
+
+export function AiPanel({ state, onAction }: Props) {
   const [messages, setMessages] = useState<CopilotMessage[]>([
-    { role: 'assistant', content: 'Saudações. Sou o Copiloto do LuxorOS. Como posso ajudar?' },
+    { role: 'assistant', content: 'Saudações. Sou o Copiloto do LuxorOS. Digite "ajuda" para ver o que posso fazer.' },
   ])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
@@ -17,8 +22,9 @@ export function AiPanel({ temple }: { temple: Temple }) {
     setMessages((m) => [...m, { role: 'user', content: prompt }])
     setBusy(true)
     try {
-      const reply = await localStubProvider.reply(prompt, temple)
-      setMessages((m) => [...m, { role: 'assistant', content: reply }])
+      const response = await localProvider.reply(prompt, state)
+      setMessages((m) => [...m, { role: 'assistant', content: response.text }])
+      response.actions?.forEach(onAction)
     } finally {
       setBusy(false)
     }
@@ -34,7 +40,7 @@ export function AiPanel({ temple }: { temple: Temple }) {
       <form className="chat-input" onSubmit={send}>
         <input
           aria-label="Mensagem para o Copiloto"
-          placeholder="Pergunte ao Copiloto…"
+          placeholder="Ex.: abra as Tábuas"
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
