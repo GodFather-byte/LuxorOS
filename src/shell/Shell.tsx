@@ -101,7 +101,7 @@ export function Shell() {
           <SidePanel key={id} open={state.openPanel === id} title={panelTitles[id]} onClose={closePanel}>
             {id === 'ai' && <AiPanel state={state} onAction={dispatch} />}
             {id === 'tools' && <ToolsPanel />}
-            {id === 'files' && <FilesPanel />}
+            {id === 'files' && <FilesPanel state={state} onAction={dispatch} />}
           </SidePanel>
         ))}
       </main>

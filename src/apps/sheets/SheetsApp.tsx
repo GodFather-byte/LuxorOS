@@ -1,7 +1,8 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { cellRef, columnLabel, COLUMNS, createEvaluator, formatValue, parseRef, ROWS, type Cells } from './engine'
+import { STORAGE_KEYS } from '../storageKeys'
 
-const STORAGE_KEY = 'luxoros:sheets:v1'
+const STORAGE_KEY = STORAGE_KEYS.sheets
 const columns = Array.from({ length: COLUMNS }, (_, i) => i)
 const rows = Array.from({ length: ROWS }, (_, i) => i)
 

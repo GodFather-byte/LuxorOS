@@ -33,6 +33,7 @@ Ao escrever testes E2E: use seletores por papel/rótulo (`getByRole`, `aria-labe
 (não `boundingBox`, que inclui a animação de abertura), e confira que o teste falha se você quebrar de propósito o comportamento que ele cobre.
 Não use `retries` para esconder instabilidade.
 Exemplo real: um teste de XSS do Escriba passava mesmo com `javascript:` liberado, porque `_` no payload virava itálico e escondia o link. Só a mutação revelou isso.
+Uma mutação que não compila derruba o `npm run build` do servidor de teste e **nenhum teste roda**: confirme que a saída mostra o teste falhando, não um erro do `webServer`.
 Para páginas externas, use `page.route` com `contentType: 'text/html; charset=utf-8'` (sem o charset, acentos viram mojibake e o seletor por nome falha).
 
 ## 3. Arquitetura em resumo
@@ -76,13 +77,19 @@ Micro-apps:
 - [x] Copiloto local, `src/ai/`: `intents.ts` traduz comandos em português (abrir app/painel, criar/trocar Templo, fechar/minimizar janelas, ajuda) em `ShellAction`s; `copilot.ts` define `CopilotProvider.reply(prompt, state) → { text, actions? }`, o formato que um provedor de LLM com *tool calling* deve devolver. O `AiPanel` despacha as ações. E2E em `e2e/copilot.e2e.ts`.
 - [ ] Copiloto com IA real: perguntas livres ainda caem numa resposta offline.
 
+Painéis:
+
+- [x] Arquivos: `src/apps/documents.ts` resume os documentos salvos (lê as chaves de `src/apps/storageKeys.ts`) e `openDocumentAction` foca a janela existente do app ou abre uma. E2E em `e2e/files.e2e.ts`.
+- [ ] Ferramentas: lista fixa de itens "em breve" (Auto-Browse, Memória Universal, Monitor de recursos).
+
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa; clicar abre o app.
-2. **Copiloto com IA real** (Fase 3): um `CopilotProvider` que chame um AI Gateway e devolva `{ text, actions }`. As ações já são validadas pelo reducer; peça confirmação antes de ações destrutivas (fechar janelas). Nunca coloque chaves de API no front-end.
-3. **Layout em telas estreitas**: corrigir o problema de largura do `.desktop` descrito em "Problemas conhecidos" e cobrir com um E2E em viewport de celular.
-4. **Janelas do mesmo app em sincronia**: hoje duas janelas de Papiro/Tábuas/Escriba não se atualizam entre si. Opção: evento `storage` + `BroadcastChannel`, ou um documento por janela.
-5. **Portal**: detectar páginas que recusam iframe é impossível de forma confiável entre origens; manter o link "Abrir em nova aba". Possível evolução no host Electron (Fase 2) com `WebContentsView`.
+1. **Copiloto com IA real** (Fase 3): um `CopilotProvider` que chame um AI Gateway e devolva `{ text, actions }`. As ações já são validadas pelo reducer; peça confirmação antes de ações destrutivas (fechar janelas). Nunca coloque chaves de API no front-end.
+2. **Layout em telas estreitas**: corrigir o problema de largura do `.desktop` descrito em "Problemas conhecidos" e cobrir com um E2E em viewport de celular.
+3. **Janelas do mesmo app em sincronia**: hoje duas janelas de Papiro/Tábuas/Escriba não se atualizam entre si. Opção: evento `storage` + `BroadcastChannel`, ou um documento por janela.
+4. **Vários documentos por app**: hoje cada app guarda um único documento. Evoluir para uma lista de documentos (o painel Arquivos já é o ponto de entrada) com validação no carregamento, como em `session.ts`.
+5. **Monitor de recursos** no painel Ferramentas: janelas por Templo e uso de `localStorage` (`navigator.storage.estimate()`).
+6. **Portal**: detectar páginas que recusam iframe é impossível de forma confiável entre origens; manter o link "Abrir em nova aba". Possível evolução no host Electron (Fase 2) com `WebContentsView`.
 
 As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHITECTURE.md`.
 
@@ -91,5 +98,7 @@ As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHI
 - `oxlint` emite 1 aviso pré-existente (`react(set-state-in-effect)`) em `src/shell/Shell.tsx`, no efeito que salva a sessão. Não é bloqueante.
 - Em largura de celular (~400px), `.desktop` fica mais largo que a tela: a coluna `auto` do grid em `.shell` cresce até a largura mínima do Dock. Correção provável: `grid-template-columns: minmax(0, 1fr)` em `.shell` e permitir rolagem/quebra no Dock.
 - O PR #5 (`copilot/continuar-criacao-luxoros`) reimplementa janelas móveis sobre uma base antiga; a feature já está na `main`.
+- Chaves de `localStorage` dos apps ficam só em `src/apps/storageKeys.ts`; renomear uma chave apaga, na prática, os dados já salvos pelos usuários.
+- O painel Arquivos lê o `localStorage` quando o Shell renderiza (por exemplo, ao abrir o painel); com ele já aberto, edições feitas num app só aparecem ao reabri-lo.
 - Papiro, Tábuas e Escriba guardam um único documento cada no `localStorage`, compartilhado entre todas as janelas e Templos. Duas janelas do mesmo app não se sincronizam ao vivo: a edição de uma só aparece na outra ao reabrir.
 - Tábuas: nas fórmulas o separador decimal é o ponto e o de argumentos é `,` ou `;`. Nos valores digitados direto na célula, `3,5` vale 3,5. A grade é fixa em 8×20.

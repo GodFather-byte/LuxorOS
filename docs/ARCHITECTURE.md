@@ -75,6 +75,8 @@ src/
 │   └── intents.ts           # comandos em português → ShellActions (puro e testado)
 ├── apps/                    # micro-apps nativos
 │   ├── registry.ts          # manifesto dos apps (Papiro, Escriba, Tábuas, Portal)
+│   ├── storageKeys.ts       # chave de localStorage de cada micro-app (fonte única)
+│   ├── documents.ts         # resumo dos documentos salvos para o painel Arquivos (puro e testado)
 │   ├── NotesApp.tsx
 │   ├── PlaceholderApp.tsx
 │   ├── browser/             # Portal: address.ts (resolve endereço/pesquisa, puro) + PortalApp.tsx (iframe com sandbox)

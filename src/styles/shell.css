@@ -250,6 +250,49 @@
   background: var(--surface-strong);
 }
 
+.panel-empty {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Files panel */
+.files-list li {
+  padding: 0;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.file-item:hover {
+  background: var(--obsidian-600);
+}
+.file-icon {
+  font-size: 1.4rem;
+}
+.file-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.file-text strong {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-text small {
+  color: var(--text-muted);
+}
+
 /* AI panel */
 .ai-panel {
   display: flex;

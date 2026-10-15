@@ -1,7 +1,8 @@
 import { createElement, Fragment, useMemo, useState, type ReactNode } from 'react'
 import { countWords, parseMarkdown, type Block, type Inline } from './markdown'
+import { STORAGE_KEYS } from '../storageKeys'
 
-const STORAGE_KEY = 'luxoros:writer:v1'
+const STORAGE_KEY = STORAGE_KEYS.writer
 
 type Mode = 'edit' | 'split' | 'preview'
 const modes: { id: Mode; label: string }[] = [

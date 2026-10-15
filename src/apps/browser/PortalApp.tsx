@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { resolveAddress, type Destination } from './address'
+import { STORAGE_KEYS } from '../storageKeys'
 
-const STORAGE_KEY = 'luxoros:portal:v1'
+const STORAGE_KEY = STORAGE_KEYS.browser
 // No allow-same-origin: framed pages run in an opaque origin and can never reach LuxorOS storage or DOM.
 const SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox'
 
