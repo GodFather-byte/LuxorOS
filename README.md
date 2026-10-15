@@ -30,6 +30,8 @@ npm run build    # type-check + build de produção
 
 Pull requests apenas validam o projeto: não publicam previews nem substituem o site. Os assets usam caminhos relativos para funcionar tanto no subdiretório do Pages quanto localmente.
 
+Mantenha apenas o workflow **Validate and deploy LuxorOS** publicando no Pages. O projeto usa React/Vite, não Jekyll: publicar o código-fonte sem o build de `dist` pode deixar a página em branco. Um workflow Jekyll concorrente pode sobrescrever a publicação correta.
+
 ### Roteiro de teste
 
 - Abra Papiro no dock, escreva uma nota e minimize a janela.
