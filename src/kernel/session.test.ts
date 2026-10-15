@@ -38,6 +38,27 @@ describe('session', () => {
     expect(parseSession(serialize({ ...state, temples: [state.temples[0], state.temples[0]] }))).toBe(initialShellState)
   })
 
+  it('restores window geometry and migrates sessions saved before geometry was added', () => {
+    const state = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const window = selectActiveTemple(state).windows[0]
+    const restored = parseSession(serialize(state))
+    expect(selectActiveTemple(restored).windows[0]).toMatchObject({
+      x: window.x, y: window.y, width: window.width, height: window.height,
+    })
+
+    const { x: _x, y: _y, width: _width, height: _height, ...legacyWindow } = window
+    const legacyState = {
+      ...state,
+      temples: state.temples.map((temple) => ({
+        ...temple,
+        windows: temple.windows.map(() => legacyWindow),
+      })),
+    }
+    expect(selectActiveTemple(parseSession(serialize(legacyState))).windows[0]).toMatchObject({
+      x: 60, y: 40, width: 560, height: 380,
+    })
+  })
+
   it('keeps the shell usable when storage is blocked or full', () => {
     expect(loadSession({ getItem: () => { throw new Error('blocked') } })).toBe(initialShellState)
     expect(saveSession(initialShellState, { setItem: () => { throw new Error('quota') } })).toBe(false)

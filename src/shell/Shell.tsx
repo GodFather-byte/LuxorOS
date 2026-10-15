@@ -65,14 +65,14 @@ export function Shell() {
             <small>Abra um aplicativo pelo dock ou consulte o Copiloto.</small>
           </div>
         )}
-        {temple.windows.map((w, i) => (
+        {temple.windows.map((w) => (
           <Window
             key={w.id}
             win={w}
-            index={i}
             onFocus={() => dispatch({ type: 'window/focus', windowId: w.id })}
             onMinimize={() => dispatch({ type: 'window/toggleMinimize', windowId: w.id })}
             onClose={() => dispatch({ type: 'window/close', windowId: w.id })}
+            onGeometryChange={(geometry) => dispatch({ type: 'window/geometry', windowId: w.id, ...geometry })}
           >
             {renderApp(w.appId)}
           </Window>

@@ -29,12 +29,27 @@ export function parseSession(raw: string): ShellState {
       if (!isRecord(temple) || !validId(temple.id, 'temple') ||
         typeof temple.name !== 'string' || typeof temple.glyph !== 'string' ||
         !Array.isArray(temple.windows)) return initialShellState
-      for (const win of temple.windows) {
+      for (const [windowIndex, win] of temple.windows.entries()) {
         if (!isRecord(win) || !validId(win.id, 'win') ||
           !appRegistry.some((app) => app.id === win.appId) ||
           typeof win.title !== 'string' || typeof win.minimized !== 'boolean' ||
           typeof win.zIndex !== 'number' || !Number.isSafeInteger(win.zIndex) ||
           win.zIndex < 1) return initialShellState
+        const geometryKeys = ['x', 'y', 'width', 'height']
+        const hasGeometry = geometryKeys.every((key) => key in win)
+        const hasPartialGeometry = geometryKeys.some((key) => key in win) && !hasGeometry
+        if (hasPartialGeometry) return initialShellState
+        if (hasGeometry) {
+          const { x, y, width, height } = win
+          if (![x, y, width, height].every((value) => typeof value === 'number' &&
+            Number.isSafeInteger(value)) ||
+            (x as number) < 0 || (y as number) < 0 ||
+            (width as number) < 200 || (width as number) > 10000 ||
+            (height as number) < 140 || (height as number) > 10000) return initialShellState
+        } else {
+          const offset = (windowIndex % 6) * 28
+          Object.assign(win, { x: 60 + offset, y: 40 + offset, width: 560, height: 380 })
+        }
         maxZ = Math.max(maxZ, win.zIndex)
       }
     }

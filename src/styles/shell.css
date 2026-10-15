@@ -123,8 +123,8 @@
 /* Windows */
 .window {
   position: absolute;
-  width: min(560px, 80vw);
-  height: min(380px, 60vh);
+  min-width: 200px;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -149,6 +149,11 @@
   border-bottom: 1px solid var(--border);
   font-weight: 600;
   user-select: none;
+  cursor: grab;
+  touch-action: none;
+}
+.window-titlebar:active {
+  cursor: grabbing;
 }
 .window-controls {
   display: flex;
@@ -169,6 +174,32 @@
 .window-body {
   flex: 1;
   overflow: auto;
+}
+.window-resize-handle {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+.window-resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  opacity: 0.75;
+}
+.window-resize-handle:focus-visible {
+  outline-offset: -2px;
 }
 
 /* Side panels */

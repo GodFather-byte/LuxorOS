@@ -30,10 +30,23 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
       return { ...state, activeTempleId: action.templeId }
     case 'window/open': {
       const id = `win-${state.nextId}`
-      const next = updateActiveTemple(state, (t) => ({
-        ...t,
-        windows: [...t.windows, { id, appId: action.appId, title: action.title, minimized: false, zIndex: state.nextZ }],
-      }))
+      const next = updateActiveTemple(state, (t) => {
+        const offset = (t.windows.length % 6) * 28
+        return {
+          ...t,
+          windows: [...t.windows, {
+            id,
+            appId: action.appId,
+            title: action.title,
+            minimized: false,
+            zIndex: state.nextZ,
+            x: 60 + offset,
+            y: 40 + offset,
+            width: 560,
+            height: 380,
+          }],
+        }
+      })
       return { ...next, nextZ: state.nextZ + 1, nextId: state.nextId + 1 }
     }
     case 'window/close':
@@ -51,6 +64,15 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
       return updateActiveTemple(state, (t) => ({
         ...t,
         windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, minimized: !w.minimized } : w)),
+      }))
+    case 'window/geometry':
+      if (![action.x, action.y, action.width, action.height].every(Number.isFinite) ||
+        action.x < 0 || action.y < 0 || action.width < 200 || action.height < 140) return state
+      return updateActiveTemple(state, (t) => ({
+        ...t,
+        windows: t.windows.map((w) =>
+          w.id === action.windowId ? { ...w, x: action.x, y: action.y, width: action.width, height: action.height } : w,
+        ),
       }))
     case 'panel/toggle':
       return { ...state, openPanel: state.openPanel === action.panel ? null : action.panel }

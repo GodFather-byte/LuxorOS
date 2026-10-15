@@ -8,6 +8,10 @@ export interface AppWindow {
   title: string
   minimized: boolean
   zIndex: number
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
 /** "Templo de Trabalho": a task/project-oriented space that replaces traditional tabs. */
@@ -33,4 +37,5 @@ export type ShellAction =
   | { type: 'window/close'; windowId: string }
   | { type: 'window/focus'; windowId: string }
   | { type: 'window/toggleMinimize'; windowId: string }
+  | { type: 'window/geometry'; windowId: string; x: number; y: number; width: number; height: number }
   | { type: 'panel/toggle'; panel: PanelId }

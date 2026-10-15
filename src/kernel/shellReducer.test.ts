@@ -41,6 +41,15 @@ describe('shellReducer', () => {
     expect(selectActiveTemple(s).windows).toHaveLength(0)
   })
 
+  it('stores window geometry and ignores invalid updates', () => {
+    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const id = selectActiveTemple(s).windows[0].id
+    s = shellReducer(s, { type: 'window/geometry', windowId: id, x: 120, y: 80, width: 640, height: 420 })
+    expect(selectActiveTemple(s).windows[0]).toMatchObject({ x: 120, y: 80, width: 640, height: 420 })
+    expect(shellReducer(s, { type: 'window/geometry', windowId: id, x: -1, y: 0, width: 640, height: 420 })).toBe(s)
+    expect(shellReducer(s, { type: 'window/geometry', windowId: 'missing', x: 10, y: 10, width: 640, height: 420 })).toEqual(s)
+  })
+
   it('toggles side panels exclusively', () => {
     let s = shellReducer(initialShellState, { type: 'panel/toggle', panel: 'ai' })
     expect(s.openPanel).toBe('ai')
