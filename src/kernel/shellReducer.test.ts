@@ -1,7 +1,27 @@
 import { describe, expect, it } from 'vitest'
+import { cascadeBounds } from './geometry'
 import { initialShellState, selectActiveTemple, shellReducer } from './shellReducer'
 
 describe('shellReducer', () => {
+  it('places new windows on the cascade and stores their bounds', () => {
+    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })
+    const [first, second] = selectActiveTemple(s).windows
+    expect(first.bounds).toEqual(cascadeBounds(0))
+    expect(second.bounds).toEqual(cascadeBounds(1))
+  })
+
+  it('moves and resizes only the targeted window in the active temple', () => {
+    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })
+    const [target, other] = selectActiveTemple(s).windows
+    const bounds = { x: 10, y: 20, width: 400, height: 300 }
+    s = shellReducer(s, { type: 'window/setBounds', windowId: target.id, bounds })
+    const [updated, untouched] = selectActiveTemple(s).windows
+    expect(updated.bounds).toEqual(bounds)
+    expect(untouched.bounds).toEqual(other.bounds)
+  })
+
   it('opens a window in the active temple with increasing z-index', () => {
     let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
     s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { cascadeBounds } from './geometry'
 import { initialShellState, selectActiveTemple, shellReducer } from './shellReducer'
 import { loadSession, parseSession, saveSession, SESSION_KEY } from './session'
 
@@ -36,6 +37,28 @@ describe('session', () => {
       expect(parseSession(serialize({ ...state, temples }))).toBe(initialShellState)
     }
     expect(parseSession(serialize({ ...state, temples: [state.temples[0], state.temples[0]] }))).toBe(initialShellState)
+  })
+
+  it('restores snapshots saved before windows had bounds, using the cascade', () => {
+    const state = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const legacy = JSON.parse(JSON.stringify(state))
+    for (const win of legacy.temples[0].windows) delete win.bounds
+    expect(selectActiveTemple(parseSession(serialize(legacy))).windows[0].bounds).toEqual(cascadeBounds(0))
+  })
+
+  it('rejects malformed or undersized window bounds', () => {
+    const state = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const invalidBounds = [
+      null,
+      'big',
+      { x: '1', y: 0, width: 400, height: 300 },
+      { x: 0, y: 0, width: 100, height: 300 },
+      { x: 0, y: 0, width: 400 },
+    ]
+    for (const bounds of invalidBounds) {
+      const temples = [{ ...state.temples[0], windows: [{ ...state.temples[0].windows[0], bounds }] }]
+      expect(parseSession(serialize({ ...state, temples }))).toBe(initialShellState)
+    }
   })
 
   it('keeps the shell usable when storage is blocked or full', () => {

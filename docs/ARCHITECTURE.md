@@ -62,6 +62,8 @@ src/
 │   ├── types.ts             # Temple, AppWindow, PanelId, ShellAction
 │   ├── shellReducer.ts      # Templos, janelas, painéis
 │   ├── shellReducer.test.ts
+│   ├── geometry.ts          # posição e tamanho das janelas: cascata, arraste e limites da área
+│   ├── geometry.test.ts
 │   ├── session.ts            # snapshot versionado, validação e persistência local
 │   ├── session.test.ts
 │   ├── commands.ts           # catálogo e busca de ações do shell
