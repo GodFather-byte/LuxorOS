@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState, type ReactNode } from 'react'
 import { NotesApp } from '../apps/NotesApp'
 import { PlaceholderApp } from '../apps/PlaceholderApp'
 import { getApp } from '../apps/registry'
+import { SheetsApp } from '../apps/sheets/SheetsApp'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
 import { loadSession, saveSession } from '../kernel/session'
 import { resolveShortcut } from '../kernel/shortcuts'
@@ -23,6 +24,7 @@ const panelTitles: Record<PanelId, string> = {
 
 function renderApp(appId: AppId): ReactNode {
   if (appId === 'notes') return <NotesApp />
+  if (appId === 'sheets') return <SheetsApp />
   return <PlaceholderApp app={getApp(appId)} />
 }
 

@@ -75,7 +75,8 @@ src/
 ├── apps/                    # micro-apps nativos
 │   ├── registry.ts          # manifesto dos apps (Papiro, Escriba, Tábuas, Portal)
 │   ├── NotesApp.tsx
-│   └── PlaceholderApp.tsx
+│   ├── PlaceholderApp.tsx
+│   └── sheets/              # Tábuas: engine.ts (fórmulas, puro e testado) + SheetsApp.tsx
 ├── shell/                   # ambiente de desktop
 │   ├── Shell.tsx
 │   ├── components/          # TopBar, Dock, Window, SidePanel, CommandPalette

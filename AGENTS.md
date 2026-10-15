@@ -53,7 +53,7 @@ Detalhes completos em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - Atalhos globais: Ctrl+T/W/N/Tab são reservados pelo navegador e não chegam à página. Ignore atalhos de setas quando o foco estiver em `input`, `textarea` ou `contenteditable`.
 - Dados do usuário ficam no `localStorage` do navegador, sem criptografia. Não grave nada sensível.
 
-## 5. Estado atual (main)
+## 5. Estado atual
 
 Fases 0 e 1 concluídas. Fase 1 (Shell completo):
 
@@ -64,15 +64,18 @@ Fases 0 e 1 concluídas. Fase 1 (Shell completo):
 - [x] Atalhos: Ctrl/Cmd+Shift+←/→ (Templo), Ctrl/Cmd+Shift+↑/↓ (foco de janela).
 - [x] Testes E2E com Playwright no repositório e no CI (`e2e/shell.e2e.ts`).
 
-Micro-apps: Papiro (notas) funciona. Escriba, Tábuas e Portal ainda são placeholders. Copiloto é um stub offline.
+Micro-apps:
+
+- [x] Papiro (notas), `src/apps/NotesApp.tsx`.
+- [x] Tábuas (planilha), `src/apps/sheets/`: motor de fórmulas puro em `engine.ts` (testes em `engine.test.ts`), UI em `SheetsApp.tsx`, E2E em `e2e/sheets.e2e.ts`. Dados em `luxoros:sheets:v1`.
+- [ ] Escriba, Portal: placeholders. Copiloto: stub offline.
 
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **Tábuas** (planilha): grade editável, referências `A1`, fórmulas com `+ - * /`, `SUM`/`AVERAGE`/`MIN`/`MAX` em intervalos `A1:B3`, detecção de referência circular, persistência local. Motor de fórmulas como módulo puro com testes. Inclua um teste E2E.
-2. **Escriba** (editor): Markdown com pré-visualização. Escape todo HTML; não injete HTML do usuário sem sanitização.
-3. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
-4. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
-5. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+1. **Escriba** (editor): Markdown com pré-visualização. Escape todo HTML; não injete HTML do usuário sem sanitização.
+2. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
+3. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
+4. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
 
 As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHITECTURE.md`.
 
@@ -81,3 +84,5 @@ As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHI
 - `oxlint` emite 1 aviso pré-existente (`react(set-state-in-effect)`) em `src/shell/Shell.tsx`, no efeito que salva a sessão. Não é bloqueante.
 - Em largura de celular (~400px), `.desktop` fica mais largo que a tela: a coluna `auto` do grid em `.shell` cresce até a largura mínima do Dock. Correção provável: `grid-template-columns: minmax(0, 1fr)` em `.shell` e permitir rolagem/quebra no Dock.
 - O PR #5 (`copilot/continuar-criacao-luxoros`) reimplementa janelas móveis sobre uma base antiga; a feature já está na `main`.
+- Papiro e Tábuas guardam um único documento cada no `localStorage`, compartilhado entre todas as janelas e Templos. Duas janelas do mesmo app não se sincronizam ao vivo: a edição de uma só aparece na outra ao reabrir.
+- Tábuas: nas fórmulas o separador decimal é o ponto e o de argumentos é `,` ou `;`. Nos valores digitados direto na célula, `3,5` vale 3,5. A grade é fixa em 8×20.
