@@ -134,6 +134,9 @@
   overflow: hidden;
   animation: window-in 0.25s var(--ease);
   min-width: min(240px, 100%);
+  /* Keeps a restored window inside a smaller viewport; the inline size comes from its geometry. */
+  max-width: 100%;
+  max-height: 100%;
   min-height: min(160px, 100%);
 }
 @keyframes window-in {

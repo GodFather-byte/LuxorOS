@@ -1,4 +1,5 @@
 import { useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent, type ReactNode } from 'react'
+import { moveGeometry, resizeGeometry } from '../../kernel/geometry'
 import type { AppWindow, WindowGeometry } from '../../kernel/types'
 
 interface Props {
@@ -20,37 +21,33 @@ type Interaction = {
   geometry: WindowGeometry
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), Math.max(min, max))
-}
-
 export function Window({ win, index, onFocus, onGeometryChange, onMinimize, onClose, children }: Props) {
   const offset = (index % 6) * 28
   const interaction = useRef<Interaction | null>(null)
   const [preview, setPreview] = useState<WindowGeometry | null>(null)
   if (win.minimized) return null
   const geometry = preview ?? win.geometry
+  // Clamped against the desktop in CSS too, so a window restored onto a smaller viewport is pulled back on screen.
   const style = {
     zIndex: win.zIndex,
-    top: geometry?.y ?? 40 + offset,
-    left: geometry?.x ?? 60 + offset,
+    top: geometry ? `clamp(0px, ${geometry.y}px, calc(100% - ${geometry.height}px))` : 40 + offset,
+    left: geometry ? `clamp(0px, ${geometry.x}px, calc(100% - ${geometry.width}px))` : 60 + offset,
     ...(geometry && { width: geometry.width, height: geometry.height }),
   }
 
   function readGeometry(element: HTMLElement): WindowGeometry {
-    const desktop = element.parentElement
-    const rect = element.getBoundingClientRect()
-    const bounds = desktop?.getBoundingClientRect()
+    // Layout box relative to the desktop. getBoundingClientRect would include the window-in animation's scale and offset.
     return {
-      x: bounds ? rect.left - bounds.left : 0,
-      y: bounds ? rect.top - bounds.top : 0,
-      width: rect.width,
-      height: rect.height,
+      x: element.offsetLeft,
+      y: element.offsetTop,
+      width: element.offsetWidth,
+      height: element.offsetHeight,
     }
   }
 
   function beginInteraction(event: PointerEvent<HTMLElement>, type: Interaction['type']) {
-    if (event.button !== 0 || (event.target instanceof Element && event.target.closest('button'))) return
+    // Skip the minimize/close buttons only: the resize handle is itself a button and must start a resize.
+    if (event.button !== 0 || (event.target instanceof Element && event.target.closest('.window-controls'))) return
     event.preventDefault()
     event.stopPropagation()
     const winElement = event.currentTarget.closest('.window')
@@ -73,25 +70,12 @@ export function Window({ win, index, onFocus, onGeometryChange, onMinimize, onCl
     const winElement = event.currentTarget.closest('.window')
     const desktop = winElement?.parentElement
     if (!winElement || !desktop) return
-    const width = desktop.clientWidth
-    const height = desktop.clientHeight
+    const area = { width: desktop.clientWidth, height: desktop.clientHeight }
     const deltaX = event.clientX - active.startX
     const deltaY = event.clientY - active.startY
-    if (active.type === 'move') {
-      active.geometry = {
-        ...active.startGeometry,
-        x: clamp(active.startGeometry.x + deltaX, 0, width - active.startGeometry.width),
-        y: clamp(active.startGeometry.y + deltaY, 0, height - active.startGeometry.height),
-      }
-    } else {
-      const maxWidth = Math.max(1, width - active.startGeometry.x)
-      const maxHeight = Math.max(1, height - active.startGeometry.y)
-      active.geometry = {
-        ...active.startGeometry,
-        width: clamp(active.startGeometry.width + deltaX, Math.min(240, maxWidth), maxWidth),
-        height: clamp(active.startGeometry.height + deltaY, Math.min(160, maxHeight), maxHeight),
-      }
-    }
+    active.geometry = active.type === 'move'
+      ? moveGeometry(active.startGeometry, deltaX, deltaY, area)
+      : resizeGeometry(active.startGeometry, deltaX, deltaY, area)
     setPreview({ ...active.geometry })
   }
 
@@ -118,13 +102,8 @@ export function Window({ win, index, onFocus, onGeometryChange, onMinimize, onCl
     const current = readGeometry(winElement)
     const desktop = winElement.parentElement
     if (!desktop) return
-    const maxWidth = Math.max(1, desktop.clientWidth - current.x)
-    const maxHeight = Math.max(1, desktop.clientHeight - current.y)
-    onGeometryChange({
-      ...current,
-      width: clamp(current.width + increment[0], Math.min(240, maxWidth), maxWidth),
-      height: clamp(current.height + increment[1], Math.min(160, maxHeight), maxHeight),
-    })
+    const area = { width: desktop.clientWidth, height: desktop.clientHeight }
+    onGeometryChange(resizeGeometry(current, increment[0], increment[1], area))
   }
 
   return (
