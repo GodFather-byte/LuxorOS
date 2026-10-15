@@ -4,7 +4,7 @@ import { PlaceholderApp } from '../apps/PlaceholderApp'
 import { getApp } from '../apps/registry'
 import { initialShellState, selectActiveTemple, shellReducer } from '../kernel/shellReducer'
 import { loadSession, saveSession } from '../kernel/session'
-import type { AppId, PanelId } from '../kernel/types'
+import type { AppId, PanelId, WindowGeometry } from '../kernel/types'
 import { Dock } from './components/Dock'
 import { CommandPalette } from './components/CommandPalette'
 import { SidePanel } from './components/SidePanel'
@@ -65,14 +65,15 @@ export function Shell() {
             <small>Abra um aplicativo pelo dock ou consulte o Copiloto.</small>
           </div>
         )}
-        {temple.windows.map((w) => (
+        {temple.windows.map((w, i) => (
           <Window
             key={w.id}
             win={w}
+            index={i}
             onFocus={() => dispatch({ type: 'window/focus', windowId: w.id })}
+            onGeometryChange={(geometry: WindowGeometry) => dispatch({ type: 'window/setGeometry', windowId: w.id, geometry })}
             onMinimize={() => dispatch({ type: 'window/toggleMinimize', windowId: w.id })}
             onClose={() => dispatch({ type: 'window/close', windowId: w.id })}
-            onBoundsChange={(bounds) => dispatch({ type: 'window/setBounds', windowId: w.id, bounds })}
           >
             {renderApp(w.appId)}
           </Window>

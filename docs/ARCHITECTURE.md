@@ -62,7 +62,7 @@ src/
 │   ├── types.ts             # Temple, AppWindow, PanelId, ShellAction
 │   ├── shellReducer.ts      # Templos, janelas, painéis
 │   ├── shellReducer.test.ts
-│   ├── geometry.ts          # posição e tamanho das janelas: cascata, arraste e limites da área
+│   ├── geometry.ts          # arraste e redimensionamento das janelas, limitados à área do desktop
 │   ├── geometry.test.ts
 │   ├── session.ts            # snapshot versionado, validação e persistência local
 │   ├── session.test.ts
@@ -113,7 +113,7 @@ docs/
 | Fase | Entregas |
 |---|---|
 | **0 — Shell (concluída)** | Vite/React/TS, tema, Templos, janelas, dock, painéis, Papiro com persistência local, testes do kernel. |
-| 1 — Shell completo | Arrastar/redimensionar janelas, atalhos de teclado, paleta de comandos (⌘K), persistência dos Templos, testes E2E com Playwright. |
+| 1 — Shell completo | Arrastar/redimensionar janelas (concluído), atalhos de teclado, paleta de comandos (⌘K), persistência dos Templos, testes E2E com Playwright. |
 | 2 — Host Electron | App `host` com `WebContentsView` por aba, app Portal real, monitor de RAM por Templo, descarte de abas inativas. |
 | 3 — Cérebro de IA | AI Gateway, Copiloto com contexto das abas do Templo, respostas em streaming. |
 | 4 — Memória & Templos inteligentes | Histórico com embeddings, busca semântica, agrupamento automático de abas em Templos. |

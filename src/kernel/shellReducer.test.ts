@@ -1,27 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { cascadeBounds } from './geometry'
 import { initialShellState, selectActiveTemple, shellReducer } from './shellReducer'
 
 describe('shellReducer', () => {
-  it('places new windows on the cascade and stores their bounds', () => {
-    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
-    s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })
-    const [first, second] = selectActiveTemple(s).windows
-    expect(first.bounds).toEqual(cascadeBounds(0))
-    expect(second.bounds).toEqual(cascadeBounds(1))
-  })
-
-  it('moves and resizes only the targeted window in the active temple', () => {
-    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
-    s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })
-    const [target, other] = selectActiveTemple(s).windows
-    const bounds = { x: 10, y: 20, width: 400, height: 300 }
-    s = shellReducer(s, { type: 'window/setBounds', windowId: target.id, bounds })
-    const [updated, untouched] = selectActiveTemple(s).windows
-    expect(updated.bounds).toEqual(bounds)
-    expect(untouched.bounds).toEqual(other.bounds)
-  })
-
   it('opens a window in the active temple with increasing z-index', () => {
     let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
     s = shellReducer(s, { type: 'window/open', appId: 'sheets', title: 'Tábuas' })
@@ -59,6 +39,19 @@ describe('shellReducer', () => {
     expect(selectActiveTemple(s).windows[0].minimized).toBe(false)
     s = shellReducer(s, { type: 'window/close', windowId: id })
     expect(selectActiveTemple(s).windows).toHaveLength(0)
+  })
+
+  it('stores window geometry and rejects invalid dimensions', () => {
+    let s = shellReducer(initialShellState, { type: 'window/open', appId: 'notes', title: 'Papiro' })
+    const id = selectActiveTemple(s).windows[0].id
+    const geometry = { x: 20, y: 30, width: 400, height: 300 }
+    s = shellReducer(s, { type: 'window/setGeometry', windowId: id, geometry })
+    expect(selectActiveTemple(s).windows[0].geometry).toEqual(geometry)
+    expect(shellReducer(s, {
+      type: 'window/setGeometry',
+      windowId: id,
+      geometry: { ...geometry, width: -1 },
+    })).toBe(s)
   })
 
   it('toggles side panels exclusively', () => {

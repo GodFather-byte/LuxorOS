@@ -1,20 +1,11 @@
 import { appRegistry } from '../apps/registry'
-import { cascadeBounds, MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH } from './geometry'
 import { initialShellState } from './shellReducer'
-import type { ShellState, WindowBounds } from './types'
+import type { ShellState } from './types'
 
 export const SESSION_KEY = 'luxoros:session:v1'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
-}
-
-function isBounds(value: unknown): value is WindowBounds {
-  if (!isRecord(value)) return false
-  const { x, y, width, height } = value
-  return typeof x === 'number' && Number.isFinite(x) && typeof y === 'number' && Number.isFinite(y) &&
-    typeof width === 'number' && width >= MIN_WINDOW_WIDTH &&
-    typeof height === 'number' && height >= MIN_WINDOW_HEIGHT
 }
 
 export function parseSession(raw: string): ShellState {
@@ -43,7 +34,14 @@ export function parseSession(raw: string): ShellState {
           !appRegistry.some((app) => app.id === win.appId) ||
           typeof win.title !== 'string' || typeof win.minimized !== 'boolean' ||
           typeof win.zIndex !== 'number' || !Number.isSafeInteger(win.zIndex) ||
-          win.zIndex < 1 || (win.bounds !== undefined && !isBounds(win.bounds))) return initialShellState
+          win.zIndex < 1) return initialShellState
+        if (win.geometry !== undefined && (
+          !isRecord(win.geometry) ||
+          !Number.isFinite(win.geometry.x) || (win.geometry.x as number) < 0 ||
+          !Number.isFinite(win.geometry.y) || (win.geometry.y as number) < 0 ||
+          !Number.isFinite(win.geometry.width) || (win.geometry.width as number) <= 0 ||
+          !Number.isFinite(win.geometry.height) || (win.geometry.height as number) <= 0
+        )) return initialShellState
         maxZ = Math.max(maxZ, win.zIndex)
       }
     }
@@ -52,15 +50,7 @@ export function parseSession(raw: string): ShellState {
       state.nextId <= maxId || state.nextId >= Number.MAX_SAFE_INTEGER ||
       typeof state.nextZ !== 'number' || !Number.isSafeInteger(state.nextZ) ||
       state.nextZ <= maxZ || state.nextZ >= Number.MAX_SAFE_INTEGER) return initialShellState
-    // Snapshots saved before windows had bounds get the same cascade a new window would receive.
-    const temples = state.temples.map((temple) => ({
-      ...temple,
-      windows: temple.windows.map((win: Record<string, unknown>, index: number) => ({
-        ...win,
-        bounds: win.bounds ?? cascadeBounds(index),
-      })),
-    }))
-    return { ...state, temples, openPanel: null } as unknown as ShellState
+    return { ...state, openPanel: null } as unknown as ShellState
   } catch {
     return initialShellState
   }

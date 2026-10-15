@@ -1,69 +1,45 @@
 import { describe, expect, it } from 'vitest'
-import {
-  cascadeBounds,
-  clampBounds,
-  MIN_WINDOW_HEIGHT,
-  MIN_WINDOW_WIDTH,
-  moveBounds,
-  resizeBounds,
-  TITLEBAR_HEIGHT,
-  VISIBLE_GRIP,
-} from './geometry'
+import { MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, moveGeometry, resizeGeometry } from './geometry'
 
 const area = { width: 1000, height: 700 }
-const bounds = { x: 100, y: 50, width: 400, height: 300 }
+const origin = { x: 100, y: 50, width: 400, height: 300 }
 
-describe('geometry', () => {
-  it('cascades new windows and restarts the cascade every six', () => {
-    expect(cascadeBounds(0)).toEqual(cascadeBounds(6))
-    expect(cascadeBounds(1).x).toBeGreaterThan(cascadeBounds(0).x)
-    expect(cascadeBounds(1).y).toBeGreaterThan(cascadeBounds(0).y)
+describe('moveGeometry', () => {
+  it('moves the window by the pointer delta', () => {
+    expect(moveGeometry(origin, 30, -20, area)).toEqual({ ...origin, x: 130, y: 30 })
   })
 
-  it('moves by a pointer delta and resizes without going below the minimum', () => {
-    expect(moveBounds(bounds, 30, -20)).toEqual({ ...bounds, x: 130, y: 30 })
-    expect(resizeBounds(bounds, 50, 25)).toEqual({ ...bounds, width: 450, height: 325 })
-    expect(resizeBounds(bounds, -1000, -1000)).toEqual({
-      ...bounds,
+  it('keeps the whole window inside the desktop area', () => {
+    expect(moveGeometry(origin, -5000, -5000, area)).toEqual({ ...origin, x: 0, y: 0 })
+    expect(moveGeometry(origin, 5000, 5000, area)).toEqual({ ...origin, x: area.width - origin.width, y: area.height - origin.height })
+  })
+})
+
+describe('resizeGeometry', () => {
+  it('grows and shrinks by the pointer delta', () => {
+    expect(resizeGeometry(origin, 50, 25, area)).toEqual({ ...origin, width: 450, height: 325 })
+    expect(resizeGeometry(origin, -50, -25, area)).toEqual({ ...origin, width: 350, height: 275 })
+  })
+
+  it('never goes below the minimum size', () => {
+    expect(resizeGeometry(origin, -1000, -1000, area)).toEqual({
+      ...origin,
       width: MIN_WINDOW_WIDTH,
       height: MIN_WINDOW_HEIGHT,
     })
   })
 
-  it('keeps the title bar reachable when a window is dragged past the edges', () => {
-    expect(clampBounds({ ...bounds, x: -5000, y: -40 }, area)).toEqual({
-      ...bounds,
-      x: VISIBLE_GRIP - bounds.width,
-      y: 0,
-    })
-    expect(clampBounds({ ...bounds, x: 5000, y: 5000 }, area)).toEqual({
-      ...bounds,
-      x: area.width - VISIBLE_GRIP,
-      y: area.height - TITLEBAR_HEIGHT,
+  it('never extends past the desktop area', () => {
+    expect(resizeGeometry(origin, 5000, 5000, area)).toEqual({
+      ...origin,
+      width: area.width - origin.x,
+      height: area.height - origin.y,
     })
   })
 
-  it('fits oversized windows to the area and enforces the minimum size', () => {
-    expect(clampBounds({ ...bounds, width: 5000, height: 5000 }, area)).toEqual({
-      x: 100,
-      y: 50,
-      width: area.width,
-      height: area.height,
-    })
-    expect(clampBounds({ ...bounds, width: 10, height: 10 }, area)).toEqual({
-      ...bounds,
-      width: MIN_WINDOW_WIDTH,
-      height: MIN_WINDOW_HEIGHT,
-    })
-    expect(clampBounds(bounds, { width: 200, height: 100 })).toEqual({
-      x: 100,
-      y: 50,
-      width: MIN_WINDOW_WIDTH,
-      height: MIN_WINDOW_HEIGHT,
-    })
-  })
-
-  it('leaves in-bounds windows untouched', () => {
-    expect(clampBounds(bounds, area)).toEqual(bounds)
+  it('uses the space left in the area when that is smaller than the minimum', () => {
+    // Remaining space from the window origin: 200 - 100 = 100 wide, 100 - 50 = 50 tall.
+    const tiny = { width: 200, height: 100 }
+    expect(resizeGeometry(origin, 0, 0, tiny)).toEqual({ ...origin, width: 100, height: 50 })
   })
 })

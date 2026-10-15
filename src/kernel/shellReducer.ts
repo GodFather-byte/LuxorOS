@@ -1,4 +1,3 @@
-import { cascadeBounds } from './geometry'
 import type { ShellAction, ShellState, Temple } from './types'
 
 export const initialShellState: ShellState = {
@@ -33,10 +32,7 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
       const id = `win-${state.nextId}`
       const next = updateActiveTemple(state, (t) => ({
         ...t,
-        windows: [
-          ...t.windows,
-          { id, appId: action.appId, title: action.title, minimized: false, zIndex: state.nextZ, bounds: cascadeBounds(t.windows.length) },
-        ],
+        windows: [...t.windows, { id, appId: action.appId, title: action.title, minimized: false, zIndex: state.nextZ }],
       }))
       return { ...next, nextZ: state.nextZ + 1, nextId: state.nextId + 1 }
     }
@@ -56,10 +52,16 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
         ...t,
         windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, minimized: !w.minimized } : w)),
       }))
-    case 'window/setBounds':
+    case 'window/setGeometry':
+      if (
+        !Number.isFinite(action.geometry.x) || action.geometry.x < 0 ||
+        !Number.isFinite(action.geometry.y) || action.geometry.y < 0 ||
+        !Number.isFinite(action.geometry.width) || action.geometry.width <= 0 ||
+        !Number.isFinite(action.geometry.height) || action.geometry.height <= 0
+      ) return state
       return updateActiveTemple(state, (t) => ({
         ...t,
-        windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, bounds: action.bounds } : w)),
+        windows: t.windows.map((w) => (w.id === action.windowId ? { ...w, geometry: action.geometry } : w)),
       }))
     case 'panel/toggle':
       return { ...state, openPanel: state.openPanel === action.panel ? null : action.panel }

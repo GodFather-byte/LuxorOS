@@ -123,9 +123,8 @@
 /* Windows */
 .window {
   position: absolute;
-  /* Size comes from the window's bounds; these caps keep it inside small viewports. */
-  max-width: 100%;
-  max-height: 100%;
+  width: min(560px, 80vw);
+  height: min(380px, 60vh);
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -134,6 +133,11 @@
   box-shadow: var(--shadow);
   overflow: hidden;
   animation: window-in 0.25s var(--ease);
+  min-width: min(240px, 100%);
+  /* Keeps a restored window inside a smaller viewport; the inline size comes from its geometry. */
+  max-width: 100%;
+  max-height: 100%;
+  min-height: min(160px, 100%);
 }
 @keyframes window-in {
   from {
@@ -152,6 +156,9 @@
   user-select: none;
   cursor: grab;
   touch-action: none;
+}
+.window-titlebar:active {
+  cursor: grabbing;
 }
 .window-controls {
   display: flex;
@@ -173,15 +180,22 @@
   flex: 1;
   overflow: auto;
 }
-.window-resize {
+.window-resize-handle {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
+  right: 2px;
+  bottom: 2px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
   cursor: nwse-resize;
   touch-action: none;
-  background: linear-gradient(135deg, transparent 50%, var(--border) 50%);
+}
+.window-resize-handle:hover,
+.window-resize-handle:focus-visible {
+  color: var(--accent);
 }
 
 /* Side panels */

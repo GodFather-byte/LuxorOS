@@ -1,46 +1,33 @@
-import type { WindowBounds } from './types'
+import type { WindowGeometry } from './types'
 
-export const MIN_WINDOW_WIDTH = 280
-export const MIN_WINDOW_HEIGHT = 180
-/** Horizontal pixels of a window that must stay on screen, so its title bar can always be grabbed. */
-export const VISIBLE_GRIP = 80
-export const TITLEBAR_HEIGHT = 36
+export const MIN_WINDOW_WIDTH = 240
+export const MIN_WINDOW_HEIGHT = 160
 
 export interface Area {
   width: number
   height: number
 }
 
-/** Default placement for a new window: a diagonal cascade that restarts every six windows. */
-export function cascadeBounds(index: number): WindowBounds {
-  const offset = (index % 6) * 28
-  return { x: 60 + offset, y: 40 + offset, width: 520, height: 360 }
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), Math.max(min, max))
 }
 
-export function moveBounds(origin: WindowBounds, dx: number, dy: number): WindowBounds {
-  return { ...origin, x: origin.x + dx, y: origin.y + dy }
-}
-
-export function resizeBounds(origin: WindowBounds, dx: number, dy: number): WindowBounds {
+/** Drag: moves the window by a pointer delta and keeps it fully inside the desktop area. */
+export function moveGeometry(origin: WindowGeometry, dx: number, dy: number, area: Area): WindowGeometry {
   return {
     ...origin,
-    width: Math.max(MIN_WINDOW_WIDTH, origin.width + dx),
-    height: Math.max(MIN_WINDOW_HEIGHT, origin.height + dy),
+    x: clamp(origin.x + dx, 0, area.width - origin.width),
+    y: clamp(origin.y + dy, 0, area.height - origin.height),
   }
 }
 
-/** Applied when a gesture ends: enforces the minimum size, fits the window to the area, and keeps its title bar reachable. */
-export function clampBounds(bounds: WindowBounds, area: Area): WindowBounds {
-  const width = clamp(bounds.width, MIN_WINDOW_WIDTH, area.width)
-  const height = clamp(bounds.height, MIN_WINDOW_HEIGHT, area.height)
+/** Resize from the bottom-right corner: respects the minimum size, and never extends past the desktop area. */
+export function resizeGeometry(origin: WindowGeometry, dx: number, dy: number, area: Area): WindowGeometry {
+  const maxWidth = Math.max(1, area.width - origin.x)
+  const maxHeight = Math.max(1, area.height - origin.y)
   return {
-    x: clamp(bounds.x, VISIBLE_GRIP - width, area.width - VISIBLE_GRIP),
-    y: clamp(bounds.y, 0, area.height - TITLEBAR_HEIGHT),
-    width,
-    height,
+    ...origin,
+    width: clamp(origin.width + dx, Math.min(MIN_WINDOW_WIDTH, maxWidth), maxWidth),
+    height: clamp(origin.height + dy, Math.min(MIN_WINDOW_HEIGHT, maxHeight), maxHeight),
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), Math.max(min, max))
 }

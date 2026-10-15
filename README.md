@@ -16,7 +16,7 @@ npm run build    # type-check + build de produção
 ## O que já existe (Shell + início da Fase 1)
 
 - **Barra superior** com os *Templos de Trabalho* (espaços por tarefa/projeto que substituem as abas tradicionais).
-- **Área de trabalho** com janelas (foco, minimizar, fechar, arrastar pela barra de título e redimensionar pelo canto inferior direito), isoladas por Templo. Posição e tamanho são salvos com a sessão.
+- **Área de trabalho** com janelas móveis e redimensionáveis por Templo (foco, minimizar e fechar), com geometria salva na sessão.
 - **Dock** com micro-apps (Papiro/Notas funcional com persistência local; Escriba, Tábuas e Portal como placeholders) e indicadores das janelas abertas/minimizadas.
 - **Painéis laterais deslizantes**: Copiloto (IA — stub offline), Ferramentas e Arquivos.
 - **Paleta de comandos**: abra pelo botão ⌕ na barra superior ou com **Ctrl+K / Cmd+K**. Busque apps, Templos, janelas e painéis; use ↑/↓ e Enter para executar, ou Esc para fechar. A busca aceita termos sem acentos.
@@ -35,7 +35,6 @@ Mantenha apenas o workflow **Validate and deploy LuxorOS** publicando no Pages. 
 ### Roteiro de teste
 
 - Abra Papiro no dock, escreva uma nota e minimize a janela.
-- Arraste a janela pela barra de título e redimensione-a pelo canto inferior direito; recarregue e confirme que posição e tamanho permanecem.
 - Crie outro Templo e abra um aplicativo; confirme que cada Templo mantém suas próprias janelas.
 - Use a paleta para trocar de Templo e **Focar Papiro**, restaurando a janela minimizada.
 - Recarregue a página: Templos, janelas e nota devem permanecer no mesmo navegador.
