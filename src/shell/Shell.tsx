@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState, type ReactNode } from 'react'
 import { NotesApp } from '../apps/NotesApp'
 import { PlaceholderApp } from '../apps/PlaceholderApp'
+import { PortalApp } from '../apps/browser/PortalApp'
 import { getApp } from '../apps/registry'
 import { SheetsApp } from '../apps/sheets/SheetsApp'
 import { WriterApp } from '../apps/writer/WriterApp'
@@ -27,6 +28,7 @@ function renderApp(appId: AppId): ReactNode {
   if (appId === 'notes') return <NotesApp />
   if (appId === 'sheets') return <SheetsApp />
   if (appId === 'writer') return <WriterApp />
+  if (appId === 'browser') return <PortalApp />
   return <PlaceholderApp app={getApp(appId)} />
 }
 

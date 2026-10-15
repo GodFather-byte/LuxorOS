@@ -76,6 +76,7 @@ src/
 │   ├── registry.ts          # manifesto dos apps (Papiro, Escriba, Tábuas, Portal)
 │   ├── NotesApp.tsx
 │   ├── PlaceholderApp.tsx
+│   ├── browser/             # Portal: address.ts (resolve endereço/pesquisa, puro) + PortalApp.tsx (iframe com sandbox)
 │   ├── sheets/              # Tábuas: engine.ts (fórmulas, puro e testado) + SheetsApp.tsx
 │   └── writer/              # Escriba: markdown.ts (parser → árvore, sem HTML cru) + WriterApp.tsx
 ├── shell/                   # ambiente de desktop

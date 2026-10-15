@@ -33,6 +33,7 @@ Ao escrever testes E2E: use seletores por papel/rótulo (`getByRole`, `aria-labe
 (não `boundingBox`, que inclui a animação de abertura), e confira que o teste falha se você quebrar de propósito o comportamento que ele cobre.
 Não use `retries` para esconder instabilidade.
 Exemplo real: um teste de XSS do Escriba passava mesmo com `javascript:` liberado, porque `_` no payload virava itálico e escondia o link. Só a mutação revelou isso.
+Para páginas externas, use `page.route` com `contentType: 'text/html; charset=utf-8'` (sem o charset, acentos viram mojibake e o seletor por nome falha).
 
 ## 3. Arquitetura em resumo
 
@@ -70,13 +71,16 @@ Micro-apps:
 - [x] Papiro (notas), `src/apps/NotesApp.tsx`.
 - [x] Tábuas (planilha), `src/apps/sheets/`: motor de fórmulas puro em `engine.ts` (testes em `engine.test.ts`), UI em `SheetsApp.tsx`, E2E em `e2e/sheets.e2e.ts`. Dados em `luxoros:sheets:v1`.
 - [x] Escriba (Markdown), `src/apps/writer/`: `markdown.ts` gera uma árvore de blocos/inlines que o React renderiza; nenhum HTML do documento chega ao DOM. `safeHref` aceita só `http(s):`/`mailto:`. Dados em `luxoros:writer:v1`. E2E em `e2e/writer.e2e.ts`, incluindo um teste de segurança.
-- [ ] Portal: placeholder. Copiloto: stub offline.
+- [x] Portal (navegação), `src/apps/browser/`: `address.ts` decide entre página, pesquisa (nova aba) ou recusa (só `http`/`https`); `PortalApp.tsx` usa `iframe` com `sandbox` **sem** `allow-same-origin` e `referrerPolicy="no-referrer"`. Última página em `luxoros:portal:v1`. E2E em `e2e/portal.e2e.ts` (intercepta `https://portal.test` com `page.route`, sem rede).
+- [ ] Copiloto: stub offline (`src/ai/copilot.ts`).
 
 ## 6. Próximos passos (em ordem de prioridade)
 
-1. **Portal** (navegação): barra de endereço + `iframe` com `sandbox`. Muitos sites bloqueiam iframes (`X-Frame-Options`/CSP): mostre uma mensagem e um botão "abrir em nova aba".
-2. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
-3. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+1. **Arquivos**: painel Arquivos listando notas, planilhas e documentos reais dos micro-apps, em vez da lista fixa.
+2. **Copiloto local**: entender comandos simples ("abrir tábuas", "novo templo Viagem") e despachar `ShellAction`s, mantendo o contrato `CopilotProvider` para um provedor real futuro.
+3. **Layout em telas estreitas**: corrigir o problema de largura do `.desktop` descrito em "Problemas conhecidos" e cobrir com um E2E em viewport de celular.
+4. **Janelas do mesmo app em sincronia**: hoje duas janelas de Papiro/Tábuas/Escriba não se atualizam entre si. Opção: evento `storage` + `BroadcastChannel`, ou um documento por janela.
+5. **Portal**: detectar páginas que recusam iframe é impossível de forma confiável entre origens; manter o link "Abrir em nova aba". Possível evolução no host Electron (Fase 2) com `WebContentsView`.
 
 As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHITECTURE.md`.
 
@@ -85,5 +89,5 @@ As fases 2+ (host Electron, AI Gateway, memória, agentes) estão em `docs/ARCHI
 - `oxlint` emite 1 aviso pré-existente (`react(set-state-in-effect)`) em `src/shell/Shell.tsx`, no efeito que salva a sessão. Não é bloqueante.
 - Em largura de celular (~400px), `.desktop` fica mais largo que a tela: a coluna `auto` do grid em `.shell` cresce até a largura mínima do Dock. Correção provável: `grid-template-columns: minmax(0, 1fr)` em `.shell` e permitir rolagem/quebra no Dock.
 - O PR #5 (`copilot/continuar-criacao-luxoros`) reimplementa janelas móveis sobre uma base antiga; a feature já está na `main`.
-- Papiro e Tábuas guardam um único documento cada no `localStorage`, compartilhado entre todas as janelas e Templos. Duas janelas do mesmo app não se sincronizam ao vivo: a edição de uma só aparece na outra ao reabrir.
+- Papiro, Tábuas e Escriba guardam um único documento cada no `localStorage`, compartilhado entre todas as janelas e Templos. Duas janelas do mesmo app não se sincronizam ao vivo: a edição de uma só aparece na outra ao reabrir.
 - Tábuas: nas fórmulas o separador decimal é o ponto e o de argumentos é `,` ou `;`. Nos valores digitados direto na célula, `3,5` vale 3,5. A grade é fixa em 8×20.
